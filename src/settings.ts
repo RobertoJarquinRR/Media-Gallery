@@ -1,21 +1,25 @@
-import { App, PluginSettingTab } from 'obsidian';
-import MyPlugin from './main.js';
+import { App, PluginSettingTab, Setting } from 'obsidian';
 
-export interface MyPluginSettings {}
+import MediaGallery from './main.js';
 
-export const DEFAULT_SETTINGS: MyPluginSettings = {};
+export interface MediaGallerySetting {
+	mySetting: string;
+}
 
-export class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
+export const DEFAULT_SETTINGS: MediaGallerySetting = {
+	mySetting: 'default',
+};
 
-	constructor(app: App, plugin: MyPlugin) {
+export class SettingTab extends PluginSettingTab {
+	plugin: MediaGallery;
+
+	constructor(app: App, plugin: MediaGallery) {
 		super(app, plugin);
+
 		this.plugin = plugin;
 	}
 
 	display(): void {
-		const { containerEl } = this;
-
-		containerEl.empty();
+		
 	}
 }
