@@ -17,11 +17,21 @@ jobs:
 
         steps:
             - uses: actions/checkout@v6
+
+            # 1. Componente: Inyectar la CLI de pnpm antes de la matriz de Node.js
+            - name: Install pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 9
+
+            # 2. Componente: Configurar Node dinámicamente con soporte de caché para pnpm
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v6
               with:
                   node-version: ${{ matrix.node-version }}
-                  cache: 'npm'
-            - run: npm ci
-            - run: npm run build --if-present
-            - run: npm run lint
+                  cache: 'pnpm' # Mapea el hash basándose en pnpm-lock.yaml
+
+            # 3. Funciones: Comandos de ejecución nativos de pnpm
+            - run: pnpm install --frozen-lockfile
+            - run: pnpm run build --if-present
+            - run: pnpm run lint
