@@ -6,6 +6,7 @@ import {
 	Notice,
 	Plugin,
 	TFile,
+	MarkdownPostProcessorContext,
 	App,
 	normalizePath,
 } from 'obsidian';
@@ -16,58 +17,34 @@ import {
 	SettingTab,
 } from './settings.js';
 
+
 // Remember to rename these classes and interfaces!
 
 export default class MediaGallery extends Plugin {
 	settings!: MediaGallerySetting;
-	
+
 	async onload() {
-		
-		
-		this.registerMarkdownCodeBlockProcessor("MediaGallery", (Source, Container, Context)=>{
-			let GalleryPath = '';
-			const Div = Container.createDiv();
+		this.registerMarkdownCodeBlockProcessor(
+			'MediaGallery',
+			(Source, Container, Context) => {
+				const path = GetPath(Source);
+				const gallery = new Gallery(
+					path,
+					Source,
+					Container,
+					Context,
+					this.app,
+				);
 
-			const Path = Source.split(",").map( P => P.trim()).find( P => P.startsWith("Path:"));
+				gallery.VideoGallery();
+				
+			},
+		);
 
-			if (Path){
-				GalleryPath = Path.replace("Path:" ,"").trim();
-			}
-			else
-			{
-				const Error = Div.createEl("p", {text: "Write a path"})
-			}
-			
-			const VideoExtensions = ['mp4', 'webm', 'ogv', 'mov']
-			let files : TFile[];
-
-			if(GalleryPath){
-				files = this.app.vault.getFiles().filter( file => file.path.startsWith(GalleryPath)) 
-				const VideoFiles = files.filter(video => VideoExtensions.includes(video.extension))
-					VideoFiles.forEach(video => {
-				const videocart = Div.createEl('p',{text: video.basename})
-			})
-			}
-			else
-				{
-				const error = Div.createEl('p', {text:"Path no found"})
-			}
-
-			
-
-
-		
-			
-			
-
-		})
-
-		this.addSettingTab(new SettingTab(this.app, this)); 
-
-		
+		this.addSettingTab(new SettingTab(this.app, this));
 	}
 
-	onunload() {}
+	onunload() { }
 
 	async loadSettings() {
 		this.settings = Object.assign(
@@ -75,12 +52,80 @@ export default class MediaGallery extends Plugin {
 
 			DEFAULT_SETTINGS,
 
-			(await this.loadData())  as Partial<MediaGallerySetting>,
+			(await this.loadData()) as Partial<MediaGallerySetting>,
 		);
 	}
 
 	async saveSettings() {
 		await this.saveData(this.settings);
+	}
+}
+
+class Gallery {
+	private _path: string;
+	private _source: string;
+	private _container: HTMLElement;
+	private _context: MarkdownPostProcessorContext;
+	public _app: App;
+
+	constructor(
+		Path: string,
+		source: string,
+		container: HTMLElement,
+		context: MarkdownPostProcessorContext,
+		app: App,
+	) {
+		this._path = Path;
+		this._source = source;
+		this._container = container;
+		this._context = context;
+		this._app = app;
+	}
+
+	public VideoGallery(){
+		let VideoExtensions = ['mp4', 'webm', 'ogv', 'mov'];
+
+		const div = this._container.createDiv();
+
+		div.id = 'video-grid';
+
+		const files = this._app.vault
+			.getFiles()
+			.filter((file) => file.path.startsWith(this._path));
+		const VideoFiles = files.filter((video) =>
+			VideoExtensions.includes(video.extension),
+		);
+
+		if (files.length > 0){
+			VideoFiles.forEach((video, index) => {
+			const video_card = div.createDiv(
+				{ cls: 'video-card' },
+				(videocard) => {
+					videocard.createEl('video', {
+						attr: {
+							src: this._app.vault.getResourcePath(video),
+							controls: 'true',
+							muted: 'true',
+							preload: 'auto',
+						},
+					});
+
+					videocard.createDiv({ cls: 'video-info' }, (videoinfo) => {
+						const name = VideoFiles[index]?.basename;
+
+						videoinfo.createEl('p', { text: name });
+					});
+				},
+			);
+		});
+		}
+		else
+		{
+			div.createEl('p', {text: "File not found"})
+			
+		}
+		
+		
 	}
 }
 
