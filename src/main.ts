@@ -1,11 +1,5 @@
 import {
-	Editor,
-	MarkdownView,
-	MarkdownFileInfo,
-	Modal,
-	Notice,
 	Plugin,
-	TFile,
 	MarkdownPostProcessorContext,
 	App,
 	normalizePath,
