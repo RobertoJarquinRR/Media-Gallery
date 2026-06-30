@@ -11,9 +11,6 @@ import {
 	SettingTab,
 } from './settings.js';
 
-
-// Remember to rename these classes and interfaces!
-
 export default class MediaGallery extends Plugin {
 	settings!: MediaGallerySetting;
 
@@ -92,7 +89,7 @@ class Gallery {
 
 		if (files.length > 0){
 			VideoFiles.forEach((video, index) => {
-			const video_card = div.createDiv(
+			div.createDiv(
 				{ cls: 'video-card', attr:{
 					"data-path": video.path,
 				} },
@@ -130,25 +127,19 @@ class Gallery {
         return;
     }
 
-    const tarjetaVideo = objetivo.closest('.video-card') as HTMLElement | null;
+    const tarjetaVideo = objetivo.closest('.video-card')
 
     if (tarjetaVideo !== null) {
-        // 1. Intentamos obtener el data-path primero
         let rutaArchivo: string | null = tarjetaVideo.getAttribute('data-path');
 
-        // 2. FALLBACK: Si no existe el atributo, lo extraemos dinámicamente del texto del <p>
         if (!rutaArchivo) {
             const parrafoTitulo = tarjetaVideo.querySelector('.video-info p');
             if (parrafoTitulo && parrafoTitulo.textContent) {
-                // Si el texto es "Chica_t", construimos una ruta estimada o el nombre del archivo
-                // Nota: Asegúrate de mapear esto a cómo almacenas tus archivos en el Vault
                 rutaArchivo = `references/video/${parrafoTitulo.textContent.trim()}.mp4`;
             }
         }
-
-        // 3. Validación y ejecución segura
         if (rutaArchivo && rutaArchivo.trim() !== "") {
-            this._app.workspace.openLinkText(rutaArchivo, "", true);
+            void this._app.workspace.openLinkText(rutaArchivo, "", true);
         } else {
             console.warn("No se pudo determinar ninguna ruta para este elemento.");
         }
