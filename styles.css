@@ -1,0 +1,51 @@
+#video-grid {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+}
+.video-card {
+	height: 290px;
+	flex-grow: 0;
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	border-radius: 8px;
+	cursor: pointer;
+}
+
+.video-card video {
+	height: 260px;
+	width: auto;
+	object-fit: contain;
+	display: block;
+	background: #000;
+	flex-shrink: 0;
+}
+
+.video-card .video-info {
+	height: 30px;
+	flex-shrink: 0;
+	padding: 0 8px;
+	display: flex;
+	align-items: center;
+	background-color: var(--background-secondary);
+}
+.video-card video::-webkit-media-controls {
+	opacity: 0;
+	transition: opacity 0.2s ease-in-out;
+}
+
+.video-card video:hover::-webkit-media-controls {
+	opacity: 1;
+}
+
+.video-card .video-info p {
+	font-size: 0.8em;
+	margin: 0;
+	text-align: center;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: var(--text-muted);
+}
